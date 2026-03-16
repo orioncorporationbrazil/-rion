@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Projeto Órion</title>
+
+<style>
+
+body{
+background:black;
+color:#00ff00;
+font-family:Courier New, monospace;
+font-size:18px;
+padding:30px;
+}
+
+#terminal{
+white-space:pre-wrap;
+max-width:900px;
+line-height:1.5;
+}
+
+#input{
+background:black;
+border:none;
+color:#00ff00;
+font-family:Courier New, monospace;
+font-size:18px;
+outline:none;
+width:100%;
+margin-top:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="terminal"></div>
+<input id="input" autocomplete="off">
+
+<script>
+
+const terminal=document.getElementById("terminal");
+const input=document.getElementById("input");
+
+let sequencia=[];
+let codigoLiberado=false;
+
+const padrao=[
+"ursa_maior",
+"ursa_maior",
+"escorpiao",
+"orion",
+"orion",
+"lyra"
+];
+
+function horaAtual(){
+
+let agora=new Date();
+return agora.toLocaleTimeString();
+
+}
+
+function iniciar(){
+
+terminal.innerHTML=
+`================================================
+PROJETO ÓRION BASE DE DADOS ASTRONÔMICA
+Sistema independente de catalogação celeste.
+Para começar, digite ajuda.
+Hora atual: <span id="hora"></span>
+================================================
+`;
+
+setInterval(()=>{
+
+document.getElementById("hora").innerText=horaAtual();
+
+},1000);
+
+}
+
+function escrever(txt){
+
+terminal.innerHTML+="\n"+txt+"\n";
+
+window.scrollTo(0,document.body.scrollHeight);
+
+}
+
+function verificarSequencia(cmd){
+
+sequencia.push(cmd);
+
+if(sequencia.length>padrao.length){
+
+sequencia.shift();
+
+}
+
+if(JSON.stringify(sequencia)===JSON.stringify(padrao)){
+
+codigoLiberado=true;
+
+escrever("Padrão identificado.");
+escrever("Novo código liberado: 332006");
+
+}
+
+}
+
+const constelacoes={
+
+orion:`ORION
+Posição:0
+Constelação muito reconhecida no céu.
+Observação 3`,
+
+andromeda:`ANDROMEDA
+Posição:1
+Constelação que abriga a galáxia de Andrômeda.
+Observação 3`,
+
+escorpiao:`ESCORPIAO
+Posição:2
+Dominada pela estrela Antares.
+Observação 2`,
+
+ursa_maior:`URSA MAIOR
+Posição:3
+Conhecida pelo Grande Carro.
+Observação 0`,
+
+ursa_menor:`URSA MENOR
+Posição:4
+Contém a estrela Polaris.
+Observação 0`,
+
+leao:`LEAO
+Posição:5
+Constelação zodiacal.
+Observação 6`,
+
+lyra:`LYRA
+Posição:6
+Contém a estrela Vega.
+Observação 3`,
+
+cygnus:`CYGNUS
+Posição:7
+Constelação do Cisne.
+Observação 3`,
+
+draco:`DRACO
+Posição:8
+Constelação serpenteante.
+Observação 2`,
+
+pegasus:`PEGASUS
+Posição:9
+Grande quadrado estelar.
+Observação 0`,
+
+perseus:`PERSEUS
+Posição:10
+Abriga Algol.
+Observação 0`,
+
+taurus:`TAURUS
+Posição:11
+Contém as Plêiades.
+Observação 6`,
+
+aries:`ARIES
+Posição:12
+Constelação zodiacal.
+Observação 3`,
+
+virgo:`VIRGO
+Posição:13
+Segunda maior constelação.
+Observação 3`,
+
+aquarius:`AQUARIUS
+Posição:14
+Portador da água.
+Observação 2`,
+
+capricornus:`CAPRICORNUS
+Posição:15
+Constelação discreta.
+Observação 0`,
+
+sagittarius:`SAGITTARIUS
+Posição:16
+Centro da Via Láctea.
+Observação 0`,
+
+pisces:`PISCES
+Posição:17
+Constelação dos peixes.
+Observação 6`
+
+};
+
+function ajuda(){
+
+escrever(`================ COMANDOS =================
+
+ajuda
+clean
+hora
+sobre
+objetivo
+
+CONSTELAÇÕES
+
+orion
+andromeda
+escorpiao
+ursa_maior
+ursa_menor
+leao
+lyra
+cygnus
+draco
+pegasus
+perseus
+taurus
+aries
+virgo
+aquarius
+capricornus
+sagittarius
+pisces
+
+JOGOS
+
+picpoc
+dados
+adivinhar
+ascii
+senha
+coin
+numero
+roleta
+
+============================================`);
+
+}
+
+function picpoc(){
+
+let r=Math.random()>0.5?"PIC":"POC";
+escrever("Resultado: "+r);
+
+}
+
+function dados(){
+
+let r=Math.floor(Math.random()*6)+1;
+escrever("🎲 "+r);
+
+}
+
+function ascii(){
+
+escrever(`
+    *
+   ***
+  *****
+ *******
+*********
+`);
+
+}
+
+function senha(){
+
+let chars="ABCDEFG123456789@#$";
+let s="";
+
+for(let i=0;i<8;i++){
+
+s+=chars[Math.floor(Math.random()*chars.length)];
+
+}
+
+escrever("Senha: "+s);
+
+}
+
+function coin(){
+
+let r=Math.random()>0.5?"CARA":"COROA";
+escrever(r);
+
+}
+
+function numero(){
+
+let r=Math.floor(Math.random()*100);
+escrever("Número: "+r);
+
+}
+
+function roleta(){
+
+let r=Math.random();
+
+if(r>0.8){
+
+escrever("Você perdeu.");
+
+}else{
+
+escrever("Você sobreviveu.");
+
+}
+
+}
+
+function ativarOrion(){
+
+document.body.style.color="#ff0033";
+
+terminal.innerHTML="";
+
+let texto=`========================================
+PROTOCOLO ÓRION ATIVADO
+========================================
+
+Se você chegou até aqui,
+significa que não estava apenas olhando.
+
+Você estava observando.
+
+A maioria olha para o céu
+e vê apenas pontos de luz.
+
+Poucos percebem padrões.
+
+Menos ainda seguem esses padrões.
+
+Órion não procura curiosos.
+
+Órion procura observadores.
+
+E agora que você chegou até aqui,
+não existe retorno.
+`;
+
+let i=0;
+
+function digitar(){
+
+if(i<texto.length){
+
+terminal.innerHTML+=texto.charAt(i);
+
+i++;
+
+setTimeout(digitar,20);
+
+}else{
+
+setTimeout(()=>{
+
+window.location.href="https://discord.gg/NpMu2Aw7st";
+
+},4000);
+
+}
+
+}
+
+digitar();
+
+}
+
+input.addEventListener("keydown",function(e){
+
+if(e.key==="Enter"){
+
+let cmd=input.value.toLowerCase();
+
+terminal.innerHTML+="\n> "+cmd;
+
+if(constelacoes[cmd]){
+
+escrever(constelacoes[cmd]);
+verificarSequencia(cmd);
+
+}
+
+else if(cmd==="ajuda"){
+
+ajuda();
+
+}
+
+else if(cmd==="clean"){
+
+terminal.innerHTML="";
+iniciar();
+
+}
+
+else if(cmd==="hora"){
+
+escrever("Hora atual: "+horaAtual());
+
+}
+
+else if(cmd==="sobre"){
+
+escrever("Órion é um sistema independente de catalogação astronômica.");
+
+}
+
+else if(cmd==="objetivo"){
+
+escrever("Alguns observam estrelas.\nOutros observam padrões.");
+
+}
+
+else if(cmd==="picpoc"){
+
+picpoc();
+
+}
+
+else if(cmd==="dados"){
+
+dados();
+
+}
+
+else if(cmd==="ascii"){
+
+ascii();
+
+}
+
+else if(cmd==="senha"){
+
+senha();
+
+}
+
+else if(cmd==="coin"){
+
+coin();
+
+}
+
+else if(cmd==="numero"){
+
+numero();
+
+}
+
+else if(cmd==="roleta"){
+
+roleta();
+
+}
+
+else if(cmd==="332006"){
+
+if(codigoLiberado){
+
+ativarOrion();
+
+}else{
+
+escrever("Acesso negado. Código não autorizado.");
+
+}
+
+}
+
+else{
+
+escrever("Comando não reconhecido.");
+
+}
+
+input.value="";
+
+}
+
+});
+
+iniciar();
+
+</script>
+
+</body>
+</html>
