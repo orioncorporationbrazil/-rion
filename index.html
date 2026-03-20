@@ -55,7 +55,6 @@ font-family:Courier New, monospace;
 <div id="terminal"></div>
 <input id="input" autocomplete="off">
 
-<!-- AVISO -->
 <div id="aviso">
 <strong>⚠ AVISO DO SISTEMA</strong><br><br>
 
@@ -76,6 +75,9 @@ const input=document.getElementById("input");
 let sequencia=[];
 let codigoLiberado=false;
 
+/* ADIVINHAR */
+let numeroSecreto=null;
+
 const padrao=[
 "ursa_maior",
 "ursa_maior",
@@ -86,10 +88,8 @@ const padrao=[
 ];
 
 function horaAtual(){
-
 let agora=new Date();
 return agora.toLocaleTimeString();
-
 }
 
 function iniciar(){
@@ -104,19 +104,14 @@ Hora atual: <span id="hora"></span>
 `;
 
 setInterval(()=>{
-
 document.getElementById("hora").innerText=horaAtual();
-
 },1000);
 
 }
 
 function escrever(txt){
-
 terminal.innerHTML+="\n"+txt+"\n";
-
 window.scrollTo(0,document.body.scrollHeight);
-
 }
 
 function verificarSequencia(cmd){
@@ -124,24 +119,18 @@ function verificarSequencia(cmd){
 sequencia.push(cmd);
 
 if(sequencia.length>padrao.length){
-
 sequencia.shift();
-
 }
 
 if(JSON.stringify(sequencia)===JSON.stringify(padrao)){
-
 codigoLiberado=true;
-
 escrever("Padrão identificado.");
 escrever("Novo código liberado: 332006");
-
 }
 
 }
 
 const constelacoes={
-
 orion:`ORION
 Posição:0
 Constelação muito reconhecida no céu.
@@ -231,11 +220,9 @@ pisces:`PISCES
 Posição:17
 Constelação dos peixes.
 Observação 6`
-
 };
 
 function ajuda(){
-
 escrever(`================ COMANDOS =================
 
 ajuda
@@ -277,25 +264,46 @@ numero
 roleta
 
 ============================================`);
+}
+
+/* JOGO ADIVINHAR */
+function adivinhar(cmd){
+
+if(numeroSecreto===null){
+numeroSecreto=Math.floor(Math.random()*100)+1;
+escrever("Adivinhe um número de 1 a 100.");
+return;
+}
+
+let n=parseInt(cmd);
+
+if(isNaN(n)){
+escrever("Digite um número válido.");
+return;
+}
+
+if(n===numeroSecreto){
+escrever("Correto. Você encontrou o número.");
+numeroSecreto=null;
+}else if(n<numeroSecreto){
+escrever("Maior.");
+}else{
+escrever("Menor.");
+}
 
 }
 
 function picpoc(){
-
 let r=Math.random()>0.5?"PIC":"POC";
 escrever("Resultado: "+r);
-
 }
 
 function dados(){
-
 let r=Math.floor(Math.random()*6)+1;
 escrever("🎲 "+r);
-
 }
 
 function ascii(){
-
 escrever(`
     *
    ***
@@ -303,58 +311,39 @@ escrever(`
  *******
 *********
 `);
-
 }
 
 function senha(){
-
 let chars="ABCDEFG123456789@#$";
 let s="";
-
 for(let i=0;i<8;i++){
-
 s+=chars[Math.floor(Math.random()*chars.length)];
-
 }
-
 escrever("Senha: "+s);
-
 }
 
 function coin(){
-
 let r=Math.random()>0.5?"CARA":"COROA";
 escrever(r);
-
 }
 
 function numero(){
-
 let r=Math.floor(Math.random()*100);
 escrever("Número: "+r);
-
 }
 
 function roleta(){
-
 let r=Math.random();
-
 if(r>0.8){
-
 escrever("Você perdeu.");
-
 }else{
-
 escrever("Você sobreviveu.");
-
 }
-
 }
 
 function ativarOrion(){
 
 document.body.style.color="#ff0033";
-
 terminal.innerHTML="";
 
 let texto=`========================================
@@ -384,29 +373,18 @@ não existe retorno.
 let i=0;
 
 function digitar(){
-
 if(i<texto.length){
-
 terminal.innerHTML+=texto.charAt(i);
-
 i++;
-
 setTimeout(digitar,20);
-
 }else{
-
 setTimeout(()=>{
-
 window.location.href="https://discord.gg/NpMu2Aw7st";
-
 },4000);
-
 }
-
 }
 
 digitar();
-
 }
 
 input.addEventListener("keydown",function(e){
@@ -417,104 +395,80 @@ let cmd=input.value.toLowerCase();
 
 terminal.innerHTML+="\n> "+cmd;
 
-if(constelacoes[cmd]){
+/* ADIVINHAR */
+if(cmd==="adivinhar"){
+adivinhar();
+}
+else if(!isNaN(cmd) && numeroSecreto!==null){
+adivinhar(cmd);
+}
 
+else if(constelacoes[cmd]){
 escrever(constelacoes[cmd]);
 verificarSequencia(cmd);
-
 }
 
 else if(cmd==="ajuda"){
-
 ajuda();
-
 }
 
 else if(cmd==="clean"){
-
 terminal.innerHTML="";
 iniciar();
-
 }
 
 else if(cmd==="hora"){
-
 escrever("Hora atual: "+horaAtual());
-
 }
 
 else if(cmd==="sobre"){
-
 escrever("Órion é um sistema independente de catalogação astronômica.");
-
 }
 
 else if(cmd==="objetivo"){
-
 escrever("Alguns observam estrelas.\nOutros observam padrões.");
-
 }
 
 else if(cmd==="picpoc"){
-
 picpoc();
-
 }
 
 else if(cmd==="dados"){
-
 dados();
-
 }
 
 else if(cmd==="ascii"){
-
 ascii();
-
 }
 
 else if(cmd==="senha"){
-
 senha();
-
 }
 
 else if(cmd==="coin"){
-
 coin();
-
 }
 
 else if(cmd==="numero"){
-
 numero();
-
 }
 
 else if(cmd==="roleta"){
-
 roleta();
-
 }
 
 else if(cmd==="332006"){
 
 if(codigoLiberado){
-
 ativarOrion();
-
 }else{
-
 escrever("Acesso negado. Código não autorizado.");
-
 }
 
 }
 
 else{
-
 escrever("Comando não reconhecido.");
-
 }
 
 input.value="";
