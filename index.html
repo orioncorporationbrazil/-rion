@@ -1,140 +1,484 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Projeto Órion</title>
+
 <style>
-    body {
-        background-color: black;
-        color: #00ff00;
-        font-family: "Courier New", monospace;
-        margin: 0;
-        overflow: hidden;
-    }
 
-    #terminal {
-        padding: 20px;
-        white-space: pre-line;
-        font-size: 16px;
-    }
+body{
+background:black;
+color:#00ff00;
+font-family:Courier New, monospace;
+font-size:18px;
+padding:30px;
+}
 
-    .cursor {
-        display: inline-block;
-        width: 10px;
-        background-color: #00ff00;
-        animation: blink 1s infinite;
-    }
+#terminal{
+white-space:pre-wrap;
+max-width:900px;
+line-height:1.5;
+}
 
-    @keyframes blink {
-        0%, 50%, 100% { opacity: 1; }
-        25%, 75% { opacity: 0; }
-    }
+#input{
+background:black;
+border:none;
+color:#00ff00;
+font-family:Courier New, monospace;
+font-size:18px;
+outline:none;
+width:100%;
+margin-top:10px;
+}
 
-    #errorScreen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: black;
-        color: red;
-        display: none;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        text-align: center;
-    }
+/* AVISO ESTILO SISTEMA */
+#aviso{
+position:fixed;
+bottom:20px;
+right:20px;
+max-width:320px;
+background:#111;
+border:2px solid #ffd700;
+color:#ffd700;
+padding:12px;
+font-size:12px;
+line-height:1.4;
+box-shadow:0 0 10px #ffd70033;
+font-family:Courier New, monospace;
+}
 
-    #errorScreen h1 {
-        font-size: 60px;
-        margin-bottom: 20px;
-    }
-
-    #errorScreen p {
-        font-size: 22px;
-        max-width: 600px;
-    }
-
-    #timer {
-        margin-top: 30px;
-        font-size: 30px;
-        color: white;
-    }
 </style>
 </head>
+
 <body>
 
 <div id="terminal"></div>
+<input id="input" autocomplete="off">
 
-<div id="errorScreen">
-    <h1>ERRO CRÍTICO NO SISTEMA</h1>
-    <p>A equipe está trabalhando o máximo possível para corrigir o problema.</p>
-    <div id="timer">Carregando horário...</div>
+<div id="aviso">
+<strong>⚠ AVISO DO SISTEMA</strong><br><br>
+
+Quando vocês chegarem à próxima parte, serão questionados sobre como chegaram até ela.<br><br>
+
+Existe apenas um meio para alcançar o caminho correto.<br><br>
+
+Qualquer tentativa de <strong>brute force</strong> ou acesso não autorizado ao código resultará na exclusão do usuário do experimento.<br><br>
+
+Se você não consegue seguir regras simples, este não é o seu lugar.
 </div>
 
 <script>
-const terminal = document.getElementById("terminal");
-const errorScreen = document.getElementById("errorScreen");
-const timer = document.getElementById("timer");
 
-const lines = [
-    "Inicializando sistema...",
-    "Carregando módulos...",
-    "Verificando integridade...",
-    "Iniciando protocolo...",
-    "Acessando núcleo...",
-    "Erro detectado...",
-    "Tentando corrigir...",
-    "Falha crítica identificada..."
+const terminal=document.getElementById("terminal");
+const input=document.getElementById("input");
+
+let sequencia=[];
+let codigoLiberado=false;
+
+/* ADIVINHAR */
+let numeroSecreto=null;
+
+const padrao=[
+"ursa_maior",
+"ursa_maior",
+"escorpiao",
+"orion",
+"orion",
+"lyra"
 ];
 
-let index = 0;
-
-function typeLine() {
-    if (index < lines.length) {
-        terminal.innerHTML += lines[index] + "\n";
-        index++;
-        setTimeout(typeLine, 800);
-    } else {
-        setTimeout(showError, 1500);
-    }
+function horaAtual(){
+let agora=new Date();
+return agora.toLocaleTimeString();
 }
 
-function showError() {
-    document.body.style.backgroundColor = "black";
-    terminal.style.display = "none";
-    errorScreen.style.display = "flex";
-    startTimer();
+function iniciar(){
+
+terminal.innerHTML=
+`================================================
+PROJETO ÓRION BASE DE DADOS ASTRONÔMICA
+Sistema independente de catalogação celeste.
+Para começar, digite ajuda.
+Hora atual: <span id="hora"></span>
+================================================
+`;
+
+setInterval(()=>{
+document.getElementById("hora").innerText=horaAtual();
+},1000);
+
 }
 
-function startTimer() {
-    const targetHour = 20;
-
-    function updateTimer() {
-        const now = new Date();
-        const target = new Date();
-
-        target.setHours(targetHour, 0, 0, 0);
-
-        if (now > target) {
-            target.setDate(target.getDate() + 1);
-        }
-
-        const diff = target - now;
-
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const minutes = Math.floor((diff / (1000 * 60)) % 60);
-        const seconds = Math.floor((diff / 1000) % 60);
-
-        timer.innerHTML = `Tempo restante: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
-
-    setInterval(updateTimer, 1000);
-    updateTimer();
+function escrever(txt){
+terminal.innerHTML+="\n"+txt+"\n";
+window.scrollTo(0,document.body.scrollHeight);
 }
 
-typeLine();
+function verificarSequencia(cmd){
+
+sequencia.push(cmd);
+
+if(sequencia.length>padrao.length){
+sequencia.shift();
+}
+
+if(JSON.stringify(sequencia)===JSON.stringify(padrao)){
+codigoLiberado=true;
+escrever("Padrão identificado.");
+escrever("Novo código liberado: 332006");
+}
+
+}
+
+const constelacoes={
+orion:`ORION
+Posição:0
+Constelação muito reconhecida no céu.
+Observação 3`,
+
+andromeda:`ANDROMEDA
+Posição:1
+Constelação que abriga a galáxia de Andrômeda.
+Observação 3`,
+
+escorpiao:`ESCORPIAO
+Posição:2
+Dominada pela estrela Antares.
+Observação 2`,
+
+ursa_maior:`URSA MAIOR
+Posição:3
+Conhecida pelo Grande Carro.
+Observação 0`,
+
+ursa_menor:`URSA MENOR
+Posição:4
+Contém a estrela Polaris.
+Observação 0`,
+
+leao:`LEAO
+Posição:5
+Constelação zodiacal.
+Observação 6`,
+
+lyra:`LYRA
+Posição:6
+Contém a estrela Vega.
+Observação 3`,
+
+cygnus:`CYGNUS
+Posição:7
+Constelação do Cisne.
+Observação 3`,
+
+draco:`DRACO
+Posição:8
+Constelação serpenteante.
+Observação 2`,
+
+pegasus:`PEGASUS
+Posição:9
+Grande quadrado estelar.
+Observação 0`,
+
+perseus:`PERSEUS
+Posição:10
+Abriga Algol.
+Observação 0`,
+
+taurus:`TAURUS
+Posição:11
+Contém as Plêiades.
+Observação 6`,
+
+aries:`ARIES
+Posição:12
+Constelação zodiacal.
+Observação 3`,
+
+virgo:`VIRGO
+Posição:13
+Segunda maior constelação.
+Observação 3`,
+
+aquarius:`AQUARIUS
+Posição:14
+Portador da água.
+Observação 2`,
+
+capricornus:`CAPRICORNUS
+Posição:15
+Constelação discreta.
+Observação 0`,
+
+sagittarius:`SAGITTARIUS
+Posição:16
+Centro da Via Láctea.
+Observação 0`,
+
+pisces:`PISCES
+Posição:17
+Constelação dos peixes.
+Observação 6`
+};
+
+function ajuda(){
+escrever(`================ COMANDOS =================
+
+ajuda
+clean
+hora
+sobre
+objetivo
+
+CONSTELAÇÕES
+
+orion
+andromeda
+escorpiao
+ursa_maior
+ursa_menor
+leao
+lyra
+cygnus
+draco
+pegasus
+perseus
+taurus
+aries
+virgo
+aquarius
+capricornus
+sagittarius
+pisces
+
+JOGOS
+
+picpoc
+dados
+adivinhar
+ascii
+senha
+coin
+numero
+roleta
+
+============================================`);
+}
+
+/* JOGO ADIVINHAR */
+function adivinhar(cmd){
+
+if(numeroSecreto===null){
+numeroSecreto=Math.floor(Math.random()*100)+1;
+escrever("Adivinhe um número de 1 a 100.");
+return;
+}
+
+let n=parseInt(cmd);
+
+if(isNaN(n)){
+escrever("Digite um número válido.");
+return;
+}
+
+if(n===numeroSecreto){
+escrever("Correto. Você encontrou o número.");
+numeroSecreto=null;
+}else if(n<numeroSecreto){
+escrever("Maior.");
+}else{
+escrever("Menor.");
+}
+
+}
+
+function picpoc(){
+let r=Math.random()>0.5?"PIC":"POC";
+escrever("Resultado: "+r);
+}
+
+function dados(){
+let r=Math.floor(Math.random()*6)+1;
+escrever("🎲 "+r);
+}
+
+function ascii(){
+escrever(`
+    *
+   ***
+  *****
+ *******
+*********
+`);
+}
+
+function senha(){
+let chars="ABCDEFG123456789@#$";
+let s="";
+for(let i=0;i<8;i++){
+s+=chars[Math.floor(Math.random()*chars.length)];
+}
+escrever("Senha: "+s);
+}
+
+function coin(){
+let r=Math.random()>0.5?"CARA":"COROA";
+escrever(r);
+}
+
+function numero(){
+let r=Math.floor(Math.random()*100);
+escrever("Número: "+r);
+}
+
+function roleta(){
+let r=Math.random();
+if(r>0.8){
+escrever("Você perdeu.");
+}else{
+escrever("Você sobreviveu.");
+}
+}
+
+function ativarOrion(){
+
+document.body.style.color="#ff0033";
+terminal.innerHTML="";
+
+let texto=`========================================
+PROTOCOLO ÓRION ATIVADO
+========================================
+
+Se você chegou até aqui,
+significa que não estava apenas olhando.
+
+Você estava observando.
+
+A maioria olha para o céu
+e vê apenas pontos de luz.
+
+Poucos percebem padrões.
+
+Menos ainda seguem esses padrões.
+
+Órion não procura curiosos.
+
+Órion procura observadores.
+
+E agora que você chegou até aqui,
+não existe retorno.
+`;
+
+let i=0;
+
+function digitar(){
+if(i<texto.length){
+terminal.innerHTML+=texto.charAt(i);
+i++;
+setTimeout(digitar,20);
+}else{
+setTimeout(()=>{
+window.location.href="https://discord.gg/NpMu2Aw7st";
+},4000);
+}
+}
+
+digitar();
+}
+
+input.addEventListener("keydown",function(e){
+
+if(e.key==="Enter"){
+
+let cmd=input.value.toLowerCase();
+
+terminal.innerHTML+="\n> "+cmd;
+
+/* ADIVINHAR */
+if(cmd==="adivinhar"){
+adivinhar();
+}
+else if(!isNaN(cmd) && numeroSecreto!==null){
+adivinhar(cmd);
+}
+
+else if(constelacoes[cmd]){
+escrever(constelacoes[cmd]);
+verificarSequencia(cmd);
+}
+
+else if(cmd==="ajuda"){
+ajuda();
+}
+
+else if(cmd==="clean"){
+terminal.innerHTML="";
+iniciar();
+}
+
+else if(cmd==="hora"){
+escrever("Hora atual: "+horaAtual());
+}
+
+else if(cmd==="sobre"){
+escrever("Órion é um sistema independente de catalogação astronômica.");
+}
+
+else if(cmd==="objetivo"){
+escrever("Alguns observam estrelas.\nOutros observam padrões.");
+}
+
+else if(cmd==="picpoc"){
+picpoc();
+}
+
+else if(cmd==="dados"){
+dados();
+}
+
+else if(cmd==="ascii"){
+ascii();
+}
+
+else if(cmd==="senha"){
+senha();
+}
+
+else if(cmd==="coin"){
+coin();
+}
+
+else if(cmd==="numero"){
+numero();
+}
+
+else if(cmd==="roleta"){
+roleta();
+}
+
+else if(cmd==="332006"){
+
+if(codigoLiberado){
+ativarOrion();
+}else{
+escrever("Acesso negado. Código não autorizado.");
+}
+
+}
+
+else{
+escrever("Comando não reconhecido.");
+}
+
+input.value="";
+
+}
+
+});
+
+iniciar();
+
 </script>
 
 </body>
